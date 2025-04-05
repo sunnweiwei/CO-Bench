@@ -90,17 +90,16 @@ agent = GreedyRefine(
 ```
 Step 3: Define the `evaluate` function and run the loop. Use the evaluate function to get results on the data, and iteratively improve the solution based on feedback:
 ```python
-evaluate = ...
+evaluate = ...  # Define evaluate() to return score (float) and feedback (str)
 # Run for 64 iterations
 for it in range(64):
     code = agent.step()
-    dev_score, dev_feedback =  evaluate(code) # Define the evaluate to return score and feedback message
+    dev_score, dev_feedback = evaluate(code) # Define evaluate() to return score (float) and feedback (str)
     agent.feedback(feedback.dev_score, feedback.dev_feedback) 
 
 # Get the final soltuion
 code = agent.finalize()
-feedback = evaluator.evaluate(code)
-print(feedback.test_feedback)  # Test set score
+print(code)
 ```
 </details>
 
