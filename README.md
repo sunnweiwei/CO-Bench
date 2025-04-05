@@ -4,10 +4,15 @@
 
 
 # Download Data
-Download raw data from [https://huggingface.co/datasets/CO-Bench/CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench) to local_dir `data`
+Download the raw data from [https://huggingface.co/datasets/CO-Bench/CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench) to the local directory `data`
 ```python
 from huggingface_hub import snapshot_download
-snapshot_download(repo_id='CO-Bench/CO-Bench', repo_type='dataset', local_dir='data')
+
+snapshot_download(
+    repo_id='CO-Bench/CO-Bench',
+    repo_type='dataset',
+    local_dir='data'
+)
 ```
 
 
@@ -19,7 +24,7 @@ from evaluation.evaluate import Evaluator
 from evaluation.controller import get_data
 
 # Load data
-data = get_data('Aircraft landing', src_dir='data_new2')
+data = get_data('Aircraft landing', src_dir='data')
 
 # Define agent
 agent = GreedyRefine(
