@@ -38,7 +38,7 @@ agent = GreedyRefine(
 )
 
 # Load evaluator
-evaluator = Evaluator(data)
+evaluator = Evaluator(data, timeout=10)
 
 # Run for 64 iterations
 for it in range(64):
