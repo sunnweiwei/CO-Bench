@@ -25,8 +25,7 @@ snapshot_download(
 Below is code to run evaluation of *Greedy Refinement* agent on `Aircraft landing` for 64 iterations.
 ```python
 from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE
-from evaluation.evaluate import Evaluator
-from evaluation.controller import get_data
+from evaluation import Evaluator, get_data
 
 # Load data
 data = get_data('Aircraft landing', src_dir='data')
