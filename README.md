@@ -3,6 +3,10 @@
 
 ![example](https://github.com/user-attachments/assets/faf29c44-4904-4d74-9a15-37a038b14e77)
 
+**Paper:** [CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization](preprint.pdf)
+
+**Data:** [CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench)
+
 # Download Data
 Download the raw data from [https://huggingface.co/datasets/CO-Bench/CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench) to the local directory `data`
 ```python
