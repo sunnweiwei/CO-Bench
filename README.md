@@ -1,6 +1,7 @@
 # CO-Bench
 
 **Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization**
+![example](https://github.com/user-attachments/assets/faf29c44-4904-4d74-9a15-37a038b14e77)
 
 
 # Download Data
