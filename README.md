@@ -106,6 +106,8 @@ print(code)
 ```
 </details>
 
+*Docker environment for sandboxed agent execution and solution evaluation: coming soon.*
+
 # Cite
 
 ```
