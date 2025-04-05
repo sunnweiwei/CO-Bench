@@ -1,0 +1,43 @@
+# Basic
+litellm
+openai
+anthropic
+datasets
+psutil
+cloudpickle
+
+# Aide and utilities
+humanize
+jsonschema
+dataclasses_json
+backoff
+funcy
+black
+genson
+coolname
+omegaconf
+shutup
+igraph
+
+# Optimization libraries (some may require extra setup)
+ecos
+gurobipy
+deap
+pulp==2.2
+scipy
+ortools
+pyomo
+gekko
+cvxpy
+networkx
+python-tsp
+simanneal
+dgl
+highspy
+swiglpk
+pymoso
+pyopt
+
+# The following need special handling:
+# conda install -c conda-forge omegaconf glpk
+# sudo apt install cgroup-tools
