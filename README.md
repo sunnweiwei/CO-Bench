@@ -21,6 +21,7 @@ snapshot_download(
 
 
 # Evaluation
+![image](https://github.com/user-attachments/assets/b1206bfb-711e-4f4b-ab11-c096df4286cd)
 Below is code to run evaluation of *Greedy Refinement* agent on `Aircraft landing` for 64 iterations.
 ```python
 from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE
