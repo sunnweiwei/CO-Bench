@@ -87,7 +87,7 @@ Step 2: Define the agent
 ```python
 from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE
 agent = GreedyRefine(
-    problem_description=data.problem_description,
+    problem_description=problem_description,
     timeout=10,
     model='openai/o3-mini')
 ```
