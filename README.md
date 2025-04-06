@@ -111,7 +111,7 @@ print(code)
 # Cite
 
 ```
-@article{Sun2023COBench,
+@article{Sun2025COBench,
   title={CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization},
   author={Weiwei Sun and Shengyu Feng and Shanda Li and Yiming Yang},
   journal={ArXiv},
