@@ -3,7 +3,7 @@
 
 ![example](https://github.com/user-attachments/assets/faf29c44-4904-4d74-9a15-37a038b14e77)
 
-**Paper:** [CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization](preprint.pdf)
+**Paper:** [CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization](https://arxiv.org/abs/2504.04310)
 
 **Data:** [CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench)
 
@@ -30,11 +30,11 @@ from evaluation import Evaluator, get_data
 # Load data
 data = get_data('Aircraft landing', src_dir='data')
 
-# Define agent
+# Define agent, here we use GreedyRefine
 agent = GreedyRefine(
     problem_description=data.problem_description,
     timeout=10,
-    model='openai/o3-mini'
+    model='openai/o3-mini', # We use LiteLLM to call API
 )
 
 # Load evaluator
