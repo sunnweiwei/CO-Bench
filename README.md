@@ -117,9 +117,6 @@ print(code)
   journal={ArXiv},
   year={2025},
   volume={abs/2504.04310},
-  eprint={2504.04310},
-  archivePrefix={arXiv},
-  primaryClass={cs.AI},
   url={https://arxiv.org/abs/2504.04310},
 }
 ```
