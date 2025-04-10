@@ -70,12 +70,12 @@ def solve(**kwargs):
 
     Args:
         - nodes (list): List of (x, y) coordinates representing cities in the TSP problem
-                     Format: [(x1, y1), (x2, y2), ..., (xn, yn)]
+                      Format: [(x1, y1), (x2, y2), ..., (xn, yn)]
 
     Returns:
         dict: Solution information with:
             - 'tour' (list): List of node indices representing the solution path
-                            Format: [0, 3, 1, ...] where numbers are indices into the nodes list
+                           Format: [0, 3, 1, ...] where numbers are indices into the nodes list
     """
 
     return {
@@ -115,5 +115,11 @@ print(code)
   title={CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization},
   author={Weiwei Sun and Shengyu Feng and Shanda Li and Yiming Yang},
   journal={ArXiv},
+  year={2025},
+  volume={abs/2504.04310},
+  eprint={2504.04310},
+  archivePrefix={arXiv},
+  primaryClass={cs.AI},
+  url={https://arxiv.org/abs/2504.04310},
 }
 ```
