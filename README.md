@@ -54,6 +54,16 @@ feedback = evaluator.evaluate(code)
 print(feedback.test_feedback)  # Test set score
 ```
 
+
+**Evaluation on All Tasks**
+
+```python
+TASK_LIST = ['Aircraft landing', 'Assignment problem', 'Assortment problem', 'Bin packing - one-dimensional', 'Capacitated warehouse location', 'Common due date scheduling', 'Constrained guillotine cutting', 'Constrained non-guillotine cutting', 'Container loading', 'Container loading with weight restrictions', 'Corporate structuring', 'Crew scheduling', 'Equitable partitioning problem', 'Euclidean Steiner problem', 'Flow shop scheduling', 'Generalised assignment problem', 'Graph colouring', 'Hybrid Reentrant Shop Scheduling', 'Job shop scheduling', 'MIS', 'Multi-Demand Multidimensional Knapsack problem', 'Multidimensional knapsack problem', 'Open shop scheduling', 'Packing unequal circles', 'Packing unequal circles area', 'Packing unequal rectangles and squares', 'Packing unequal rectangles and squares area', 'Resource constrained shortest path', 'Set covering', 'Set partitioning', 'TSP', 'Uncapacitated warehouse location', 'Unconstrained guillotine cutting', 'Vehicle routing: period routing', 'p-median - capacitated', 'p-median - uncapacitated']
+
+for task in TASK_LIST:
+    ... # Run evaluation on one task
+```
+
 <details>
 <summary><strong>Using Agents on Custom Problems</strong></summary>
 
@@ -98,7 +108,7 @@ evaluate = ...  # Define evaluate() to return score (float) and feedback (str)
 for it in range(64):
     code = agent.step()
     dev_score, dev_feedback = evaluate(code) # Define evaluate() to return score (float) and feedback (str)
-    agent.feedback(feedback.dev_score, feedback.dev_feedback) 
+    agent.feedback(dev_score, dev_feedback) 
 
 # Get the final soltuion
 code = agent.finalize()
