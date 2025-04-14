@@ -16,7 +16,7 @@ class Feedback:
 
 
 class Evaluator:
-    def __init__(self, data, timeout=10, cpu_num=None, feedback_length=10):
+    def __init__(self, data, timeout=10, cpu_num=None, feedback_length=64):
         self.data = data
         self.timeout = timeout
         data_size = {case: [1] * len(
@@ -32,7 +32,8 @@ class Evaluator:
             if error_message:
                 prev_score.append(f"{case} -> Caught Error: {error_message}")
             else:
-                _scores = sorted(scores, key=lambda x: -1 if isinstance(x, str) else x)
+                # _scores = sorted(scores, key=lambda x: -1 if isinstance(x, str) else x)
+                _scores = scores
                 _scores = [x if isinstance(x, str) else f"{float(x):.3f}" for x in _scores][:self.feedback_length]
                 prev_score.append(f"{case} -> Scores: {_scores}")
         # prev_score = sorted(prev_score, key=lambda x: -1 if isinstance(x[0], str) else 1)
