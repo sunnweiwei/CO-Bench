@@ -1,4 +1,4 @@
-from evaluation.utils import FileLock, process_all_cases, design_optimal, eval_all, filter_dev, filter_test
+from evaluation.utils import FileLock, ParallelRun, design_optimal, eval_all, filter_dev, filter_test
 import os
 from dataclasses import dataclass
 
@@ -13,6 +13,13 @@ class Feedback:
     test_feedback: str
     results: dict
 
+
+def evaluate_instance(instance, solve, eval_func):
+    """Run solve and eval_func on the instance and return the score."""
+    solution = solve(**instance)
+    solution = {str(k): v for k, v in solution.items()}
+    score = eval_func(**instance, **solution)
+    return score
 
 
 class Evaluator:
@@ -41,10 +48,10 @@ class Evaluator:
         prev_score += f'\nAvg Score {avg_score}'
         return prev_score
 
-
     def evaluate(self, code):
+        runtime = ParallelRun(evaluate_instance)
         with FileLock():
-            results = process_all_cases(
+            results = runtime(
                 self.data.test_cases, self.data.task, self.data.load_data, code,
                 self.data.config_path, self.data.src_dir,
                 timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
