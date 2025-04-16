@@ -71,15 +71,10 @@ def list_dirs(path="."):
 
 
 def list_test_cases(path="."):
-    case_list = [
+    return sorted(
         f for f in os.listdir(path)
-        if (
-            (os.path.isfile(os.path.join(path, f)) and f.endswith(('.txt', '.dat')))
-            or (os.path.isdir(os.path.join(path, f)) and f.startswith("er_"))
-        )
-    ]
-    case_list = sorted(case_list)
-    return case_list
+        if not (f.endswith(".py") or f == "__pycache__")
+    )
 
 
 class FileLock:
@@ -197,135 +192,137 @@ def capture_all_output():
         os.close(saved_stderr_fd)
 
 
-def evaluate_instance(instance, solve, eval_func):
-    """Run solve and eval_func on the instance and return the score."""
-    solution = solve(**instance)
-    solution = {str(k): v for k, v in solution.items()}
-    score = eval_func(**instance, **solution)
-    return score
 
+class ParallelRun:
+    def __init__(self, func, *args, **kwargs):
+        self.func = func
 
-def evaluate_instance_in_subprocess(instance, solve_source, config_path, queue):
-    """
-    Run evaluation inside a process and store its PID in a global variable
-    so we can identify its children later if needed.
-    """
-    try:
-        # Set process group ID to make it easier to kill all children later
-        if hasattr(os, 'setpgrp'):  # Unix/Linux/Mac
-            os.setpgrp()
-
-        # Re-import eval_func from the config file.
-        _, eval_func = import_func(config_path, 'load_data', 'eval_func')
-        # Compile the solve function from its source code.
-        local_namespace = {}
-        exec(solve_source, local_namespace)
-        if "solve" not in local_namespace:
-            raise ValueError("The source code does not define a 'solve' function.")
-        solve_func = local_namespace["solve"]
-        # result = evaluate_instance(instance, solve_func, eval_func)
-
-        with capture_all_output():
-            result = evaluate_instance(instance, solve_func, eval_func)
-        queue.put(result)
-    except Exception as e:
-        queue.put(f"Exception: {str(e)}")
-
-
-
-def run_instance_with_timeout(instance, solve_source, config_path, timeout):
-    # Create a unique cgroup name for this instance.
-    # (You might use a unique identifier from the instance or the process PID)
-    cgroup_name = f"experiment_{os.getpid()}_{instance.get('id', 'unknown')}"
-
-    # Create a cgroup for CPU and memory (adjust as needed for your system, and note this works for cgroup v1)
-    subprocess.run(["cgcreate", "-g", f"cpu,memory:/{cgroup_name}"],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    queue = mp.Queue()
-    p = mp.Process(target=evaluate_instance_in_subprocess,
-                   args=(instance, solve_source, config_path, queue))
-    p.start()
-
-    # Add the process to the cgroup
-    subprocess.run(["cgclassify", "-g", f"cpu,memory:/{cgroup_name}", str(p.pid)],
-                   stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-    p.join(timeout + 1)  # 1 extra second
-    if p.is_alive():
-        p.terminate()
+    def evaluate_instance_in_subprocess(self, instance, solve_source, config_path, queue):
+        """
+        Run evaluation inside a process and store its PID in a global variable
+        so we can identify its children later if needed.
+        """
         try:
-            parent = psutil.Process(p.pid)
-            it = 1
-            for child in parent.children(recursive=True):
-                if it > 100:
-                    break
-                child.kill()
-                it += 1
-            parent.kill()
-        except psutil.NoSuchProcess:
-            pass
-        p.join(1)
-        # Kill all processes in the cgroup (including detached pulp solvers)
-        subprocess.run(["cgdelete", "-g", f"cpu,memory:/{cgroup_name}"],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return f"Timeout ({timeout}s)"
-    else:
-        try:
-            result = queue.get_nowait()
-        except Exception:
-            result = "No result"
-        subprocess.run(["cgdelete", "-g", f"cpu,memory:/{cgroup_name}"],
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        return result
+            # Set process group ID to make it easier to kill all children later
+            if hasattr(os, 'setpgrp'):  # Unix/Linux/Mac
+                os.setpgrp()
+
+            # Re-import eval_func from the config file.
+            _, eval_func = import_func(config_path, 'load_data', 'eval_func')
+            # Compile the solve function from its source code.
+            local_namespace = {}
+            exec(solve_source, local_namespace)
+            if "solve" not in local_namespace:
+                raise ValueError("The source code does not define a 'solve' function.")
+            solve_func = local_namespace["solve"]
+            # result = evaluate_instance(instance, solve_func, eval_func)
+
+            with capture_all_output():
+                result = self.func(instance, solve_func, eval_func)
+            queue.put(result)
+        except Exception as e:
+            queue.put(f"Exception: {str(e)}")
 
 
-def process_single_case(case, task, load_data, solve_source, config_path, src_dir, timeout, instance_workers):
-    file_path = os.path.join(src_dir, task, case)
-    list_of_instance = load_data(file_path)
-    list_of_instance = list_of_instance
-    inst_total = len(list_of_instance)
-    instance_results = [None] * inst_total
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=instance_workers) as instance_executor:
-        future_to_idx = {
-            instance_executor.submit(run_instance_with_timeout, instance, solve_source, config_path, timeout): idx
-            for idx, instance in enumerate(list_of_instance)
-        }
-        for future in concurrent.futures.as_completed(future_to_idx):
-            idx = future_to_idx[future]
+    def run_instance_with_timeout(self, instance, solve_source, config_path, timeout):
+        # Create a unique cgroup name for this instance.
+        # (You might use a unique identifier from the instance or the process PID)
+        cgroup_name = f"experiment_{os.getpid()}_{instance.get('id', 'unknown')}"
+
+        # Create a cgroup for CPU and memory (adjust as needed for your system, and note this works for cgroup v1)
+        # subprocess.run(["cgcreate", "-g", f"cpu,memory:/{cgroup_name}"],
+        #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        queue = mp.Queue()
+        p = mp.Process(target=self.evaluate_instance_in_subprocess,
+                       args=(instance, solve_source, config_path, queue))
+        p.start()
+
+        # Add the process to the cgroup
+        # subprocess.run(["cgclassify", "-g", f"cpu,memory:/{cgroup_name}", str(p.pid)],
+        #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+        p.join(timeout + 1)  # 1 extra second
+        if p.is_alive():
+            p.terminate()
             try:
-                result = future.result()
-            except Exception as e:
-                result = f"Exception: {str(e)}"
-            instance_results[idx] = result
-
-    return case, (instance_results, None)
-
-
-def process_all_cases(test_cases, task, load_data, solve_source, config_path, src_dir,
-                      timeout=60, instance_workers=4, case_workers=4):
-    results = {}
-    pbar = tqdm(total=len(test_cases), desc=f"Processing cases for '{task}'", unit="case")
-
-    # Submit each case processing as an independent process.
-    with concurrent.futures.ProcessPoolExecutor(max_workers=case_workers) as case_executor:
-        future_to_case = {
-            case_executor.submit(
-                process_single_case, case, task, load_data, solve_source, config_path, src_dir, timeout,
-                instance_workers
-            ): case for case in test_cases
-        }
-        for future in concurrent.futures.as_completed(future_to_case):
+                parent = psutil.Process(p.pid)
+                it = 1
+                for child in parent.children(recursive=True):
+                    if it > 100:
+                        break
+                    child.kill()
+                    it += 1
+                parent.kill()
+            except psutil.NoSuchProcess:
+                pass
+            p.join(1)
+            # Kill all processes in the cgroup (including detached pulp solvers)
+            # subprocess.run(["cgdelete", "-g", f"cpu,memory:/{cgroup_name}"],
+            #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return f"Timeout ({timeout}s)"
+        else:
             try:
-                case, case_result = future.result()
-            except Exception as e:
-                case = future_to_case[future]
-                case_result = (None, f"Exception: {str(e)}")
-            results[case] = case_result
-            pbar.update(1)
-    pbar.close()
-    return results
+                result = queue.get_nowait()
+            except Exception:
+                result = "No result"
+            # subprocess.run(["cgdelete", "-g", f"cpu,memory:/{cgroup_name}"],
+            #                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return result
+
+
+    def process_single_case(self, case, task, load_data, solve_source, config_path, src_dir, timeout, instance_workers):
+        file_path = os.path.join(src_dir, task, case)
+        list_of_instance = load_data(file_path)
+        list_of_instance = list_of_instance
+        inst_total = len(list_of_instance)
+        instance_results = [None] * inst_total
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=instance_workers) as instance_executor:
+            future_to_idx = {
+                instance_executor.submit(self.run_instance_with_timeout, instance, solve_source, config_path, timeout): idx
+                for idx, instance in enumerate(list_of_instance)
+            }
+            for future in concurrent.futures.as_completed(future_to_idx):
+                idx = future_to_idx[future]
+                try:
+                    result = future.result()
+                except Exception as e:
+                    result = f"Exception: {str(e)}"
+                instance_results[idx] = result
+
+        return case, (instance_results, None)
+
+
+    def process_all_cases(self, test_cases, task, load_data, solve_source, config_path, src_dir,
+                          timeout=60, instance_workers=4, case_workers=4):
+        results = {}
+        pbar = tqdm(total=len(test_cases), desc=f"Processing cases for '{task}'", unit="case")
+
+        # Submit each case processing as an independent process.
+        with concurrent.futures.ProcessPoolExecutor(max_workers=case_workers) as case_executor:
+            future_to_case = {
+                case_executor.submit(
+                    self.process_single_case, case, task, load_data, solve_source, config_path, src_dir, timeout,
+                    instance_workers
+                ): case for case in test_cases
+            }
+            for future in concurrent.futures.as_completed(future_to_case):
+                try:
+                    case, case_result = future.result()
+                except Exception as e:
+                    case = future_to_case[future]
+                    case_result = (None, f"Exception: {str(e)}")
+                results[case] = case_result
+                pbar.update(1)
+        pbar.close()
+        return results
+
+    def __call__(self, test_cases, task, load_data, solve_source, config_path, src_dir,
+                          timeout=60, instance_workers=4, case_workers=4):
+        return self.process_all_cases(test_cases, task, load_data, solve_source, config_path, src_dir,)
+
 
 def filter_dev(results, dev):
     if dev is None:
