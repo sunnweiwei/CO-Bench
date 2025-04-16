@@ -24,7 +24,7 @@ snapshot_download(
 ![image](https://github.com/user-attachments/assets/b1206bfb-711e-4f4b-ab11-c096df4286cd)
 Below is code to run evaluation of *Greedy Refinement* agent on `Aircraft landing` for 64 iterations.
 ```python
-from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE
+from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE, ChainOfExperts, ReEvo, BestOfN
 from evaluation import Evaluator, get_data
 
 # Load data
@@ -95,7 +95,7 @@ def solve(**kwargs):
 ```
 Step 2: Define the agent
 ```python
-from agents import GreedyRefine, DirectAnswer, FunSearch, AIDE
+from agents import GreedyRefine
 agent = GreedyRefine(
     problem_description=problem_description,
     timeout=10,
@@ -117,6 +117,15 @@ print(code)
 </details>
 
 *Docker environment for sandboxed agent execution and solution evaluation: coming soon.*
+
+# Agent Implementations
+
+Agents are implemented in the `agents` module. Currently supported agents include: `GreedyRefine`, `DirectAnswer`, `BestOfN`, `FunSearch` ([link](https://github.com/google-deepmind/funsearch)), `AIDE` ([link](https://github.com/WecoAI/aideml)), `ChainOfExperts` ([link](https://github.com/xzymustbexzy/Chain-of-Experts)), and `ReEvo` ([link](https://github.com/ai4co/reevo)). LLMs are supported via [liteLLM](https://github.com/BerriAI/litellm).
+
+Each agent implements the following functions:
+- `step()`: Returns the next candidate code for evaluation.
+- `feedback()`: Accepts evaluation results of previous candidate code.
+- `finalize()`: Returns the final code.
 
 # Cite
 
