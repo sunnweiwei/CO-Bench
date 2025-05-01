@@ -321,7 +321,8 @@ class ParallelRun:
 
     def __call__(self, test_cases, task, load_data, solve_source, config_path, src_dir,
                           timeout=60, instance_workers=4, case_workers=4):
-        return self.process_all_cases(test_cases, task, load_data, solve_source, config_path, src_dir,)
+        return self.process_all_cases(test_cases, task, load_data, solve_source, config_path, src_dir,
+                                      timeout=timeout, instance_workers=instance_workers, case_workers=case_workers)
 
 
 def filter_dev(results, dev):
