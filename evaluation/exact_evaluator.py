@@ -81,8 +81,7 @@ class ExactEvaluator(Evaluator):
                 self.data.test_cases, self.data.task, self.data.load_data, code,
                 self.data.config_path, self.data.src_dir,
                 timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
-        print(results)
-        print()
+        
         score_results, time_results = separate_time(results)
         score_results = self.data.norm_score(score_results)
         score_results = optimal_filter(score_results)
