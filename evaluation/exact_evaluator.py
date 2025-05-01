@@ -15,7 +15,7 @@ class Feedback:
 
 
 def separate_time(results):
-    scores = {}
+    returned_scores = {}
     times = {}
     for case, (scores, error_message) in results.items():
         score_item = []
@@ -27,9 +27,9 @@ def separate_time(results):
             else:
                 score_item.append(score)
                 time_item.append(score)
-        scores[case] = (score_item, error_message)
+        returned_scores[case] = (score_item, error_message)
         times[case] = (time_item, error_message)
-    return scores, times
+    return returned_scores, times
 
 
 def optimal_filter(results):
@@ -49,10 +49,10 @@ def filter_time(score_results, time_results):
     normed = {}
     for case in score_results:
         scores, error_message = score_results[case]
-        times = time_results[case]
+        times, _ = time_results[case]
         normed_scores = []
         for score, t in zip(scores, times):
-            if isinstance(score, (int, float)):
+            if not isinstance(score, str):
                 if score >= 0.0:
                     normed_scores.append(t)
                 else:
@@ -81,14 +81,14 @@ class ExactEvaluator(Evaluator):
                 self.data.test_cases, self.data.task, self.data.load_data, code,
                 self.data.config_path, self.data.src_dir,
                 timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
+        print(results)
+        print()
         score_results, time_results = separate_time(results)
         score_results = self.data.norm_score(score_results)
         score_results = optimal_filter(score_results)
-        time_results = self.data.norm_time(results)
-
+        time_results = self.data.norm_time(time_results)
         results = filter_time(score_results, time_results)
 
-        results = {k:v for k,v in results.items()}
         score = eval_all(results, self.data.test_cases)
         dev_score = eval_all(filter_dev(results, self.data.get_dev()), self.data.test_cases)
         test_score = eval_all(filter_test(results, self.data.get_dev()), self.data.test_cases)
