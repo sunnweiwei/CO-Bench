@@ -1,4 +1,4 @@
-from evaluation.utils import FileLock, ParallelRun, design_optimal, eval_all, filter_dev, filter_test
+from evaluation.utils import FileLock, ParallelRun, design_optimal, average_score, filter_dev, filter_test
 import os
 from dataclasses import dataclass
 
@@ -56,9 +56,9 @@ class Evaluator:
                 self.data.config_path, self.data.src_dir,
                 timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
         results = self.data.norm_score(results)
-        score = eval_all(results, self.data.test_cases)
-        dev_score = eval_all(filter_dev(results, self.data.get_dev()), self.data.test_cases)
-        test_score = eval_all(filter_test(results, self.data.get_dev()), self.data.test_cases)
+        score = average_score(results, self.data.test_cases)
+        dev_score = average_score(filter_dev(results, self.data.get_dev()), self.data.test_cases)
+        test_score = average_score(filter_test(results, self.data.get_dev()), self.data.test_cases)
 
         feedback = self.get_feedback(results, dev_score)
         dev_feedback = self.get_feedback(filter_dev(results, self.data.get_dev()), dev_score)

@@ -364,13 +364,37 @@ def filter_test(results, dev):
     return test_results
 
 
-def eval_all(results, test_cases):
+def average_score(results, test_cases):
     return sum(
         (sum(x if not isinstance(x, str) else 0 for x in scores) / len(scores)
          if not error_message else 0)
         for scores, error_message in (results.get(case, (None, "No result")) for case in results.keys())
     ) / len(results)
 
+
+def geo_men(results, test_cases):
+    per_case_gms = []
+    for case in results.keys():
+        scores, error_message = results.get(case, (None, "No result"))
+        if error_message:
+            per_case_gms.append(0.0)
+        else:
+            # map non-str entries to themselves, str entries to 0
+            vals = [x if not isinstance(x, str) else 0 for x in scores]
+            k = len(vals)
+            if k == 0:
+                gm = 0.0
+            else:
+                prod = math.prod(vals)
+                gm = prod**(1.0 / k)
+            per_case_gms.append(gm)
+
+    n = len(per_case_gms)
+    if n == 0:
+        return 0.0
+    # overall geometric mean = (∏ per_case_gm)^(1/n)
+    total_prod = math.prod(per_case_gms)
+    return total_prod**(1.0 / n)
 
 def compare_results(results, reference_results, test_cases):
     imp = dec = tie = 0
