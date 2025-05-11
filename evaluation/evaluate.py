@@ -28,8 +28,9 @@ class Evaluator:
         self.timeout = timeout
         data_size = {case: [1] * len(
             self.data.load_data(f"{self.data.src_dir}/{self.data.task}/{case}")) for case in self.data.test_cases}
-        cpu_num = os.cpu_count() or cpu_num
+        cpu_num = os.cpu_count() if cpu_num is None else cpu_num
         self.case_workers, self.instance_workers = design_optimal(data_size, cpu_num)
+        print(self.case_workers, self.instance_workers)
         self.feedback_length = feedback_length
 
     def get_feedback(self, results, avg_score):

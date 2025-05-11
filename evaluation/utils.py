@@ -273,6 +273,7 @@ class ParallelRun:
 
 
     def process_single_case(self, case, task, load_data, solve_source, config_path, src_dir, timeout, instance_workers):
+        # print(case)
         file_path = os.path.join(src_dir, task, case)
         list_of_instance = load_data(file_path)
         list_of_instance = list_of_instance

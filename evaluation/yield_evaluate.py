@@ -7,6 +7,7 @@ import psutil
 import traceback
 import sys
 import re
+import signal
 
 
 def format_concise_error(exc_type, exc_value, exc_traceback):
@@ -81,7 +82,7 @@ def run_yielding_instance_with_timeout(instance, solve_source, config_path, time
     while time.time() < end_time and p.is_alive():
         # Check for new data from the subprocess
         try:
-            while not queue.empty():
+            while not queue.empty() and time.time() < end_time:
                 message_type, data = queue.get_nowait()
                 if message_type == "solution":
                     last_solution = data
@@ -90,30 +91,52 @@ def run_yielding_instance_with_timeout(instance, solve_source, config_path, time
         except Exception:
             pass
         # Sleep to prevent CPU spinning
-        time.sleep(0.1)
-
+        time.sleep(0.05)
+    # print('Done')
     # If the process is still alive, terminate it
     if p.is_alive():
         p.terminate()
         try:
             parent = psutil.Process(p.pid)
+            it = 1
             for child in parent.children(recursive=True):
+                if it > 100:
+                    break
                 child.kill()
+                it += 1
             parent.kill()
         except psutil.NoSuchProcess:
             pass
         p.join(1)
+    # print('Killed')
+    # if p.is_alive():
+    #     print(f"WARNING: Process {p.pid} could not be terminated!")
+    #     # Last resort: use system kill command on Unix
+    #     if hasattr(os, 'system'):
+    #         os.system(f"kill -9 {p.pid} 2>/dev/null || true")
+    # print('Final Killed')
 
-    # Check for any remaining data from the subprocess
-    try:
-        while not queue.empty():
-            message_type, data = queue.get_nowait()
-            if message_type == "solution":
-                last_solution = data
-            elif message_type == "error":
-                error = data
-    except Exception:
-        pass
+    # Create a thread to do the queue fetching with the original code
+    import threading
+
+    def fetch_from_queue():
+        """Fetch remaining data from the queue using the original method."""
+        nonlocal last_solution, error
+        try:
+            while not queue.empty():
+                message_type, data = queue.get_nowait()
+                if message_type == "solution":
+                    last_solution = data
+                elif message_type == "error":
+                    error = data
+        except Exception:
+            pass
+
+    # Run the queue fetching in a separate thread with timeout
+    fetch_thread = threading.Thread(target=fetch_from_queue)
+    fetch_thread.daemon = True
+    fetch_thread.start()
+    fetch_thread.join(timeout=2.0)
 
     # If there was an error and no solution, return the error
     if error and not last_solution:
@@ -193,11 +216,10 @@ class YieldingEvaluator(Evaluator):
 
     def evaluate(self, code):
         runtime = YieldingParallelRun()
-        with FileLock():
-            results = runtime(
-                self.data.test_cases, self.data.task, self.data.load_data, code,
-                self.data.config_path, self.data.src_dir,
-                timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
+        results = runtime(
+            self.data.test_cases, self.data.task, self.data.load_data, code,
+            self.data.config_path, self.data.src_dir,
+            timeout=self.timeout, instance_workers=self.instance_workers, case_workers=self.case_workers)
         results = self.data.norm_score(results)
         score = average_score(results, self.data.test_cases)
         dev_score = average_score(filter_dev(results, self.data.get_dev()), self.data.test_cases)
