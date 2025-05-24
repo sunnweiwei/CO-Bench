@@ -227,8 +227,9 @@ Each agent implements the following functions:
 @article{Feng2025FrontierCO,
   title={A Comprehensive Evaluation of Contemporary ML-Based Solvers for Combinatorial Optimization},
   author={Shengyu Feng and Weiwei Sun and Shanda Li and Ameet Talwalkar and Yiming Yang},
-  journal={arXiv preprint arXiv:2505.16952},
+  journal={ArXiv},
   year={2025},
-  url={https://arxiv.org/abs/2505.16952}
+  volume={abs/2505.16952},
+  url={https://arxiv.org/abs/2505.16952},
 }
 ```
