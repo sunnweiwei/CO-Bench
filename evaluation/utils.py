@@ -276,6 +276,7 @@ class ParallelRun:
         # print(case)
         file_path = os.path.join(src_dir, task, case)
         list_of_instance = load_data(file_path)
+        # print('Load done')
         list_of_instance = list_of_instance
         inst_total = len(list_of_instance)
         instance_results = [None] * inst_total

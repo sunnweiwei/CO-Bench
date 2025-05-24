@@ -26,10 +26,12 @@ class Evaluator:
     def __init__(self, data, timeout=10, cpu_num=None, feedback_length=64):
         self.data = data
         self.timeout = timeout
-        data_size = {case: [1] * len(
-            self.data.load_data(f"{self.data.src_dir}/{self.data.task}/{case}")) for case in self.data.test_cases}
+        data_size = {case: [1] * 1 for case in self.data.test_cases}
+        # data_size = {case: [1] * len(
+        #     self.data.load_data(f"{self.data.src_dir}/{self.data.task}/{case}")) for case in self.data.test_cases}
         cpu_num = os.cpu_count() if cpu_num is None else cpu_num
         self.case_workers, self.instance_workers = design_optimal(data_size, cpu_num)
+        self.case_workers = cpu_num
         print(self.case_workers, self.instance_workers)
         self.feedback_length = feedback_length
 

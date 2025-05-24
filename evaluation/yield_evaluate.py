@@ -110,7 +110,7 @@ def run_yielding_instance_with_timeout(instance, solve_source, config_path, time
         p.join(1)
     # print('Killed')
     # if p.is_alive():
-    #     print(f"WARNING: Process {p.pid} could not be terminated!")
+    #     # print(f"WARNING: Process {p.pid} could not be terminated!")
     #     # Last resort: use system kill command on Unix
     #     if hasattr(os, 'system'):
     #         os.system(f"kill -9 {p.pid} 2>/dev/null || true")

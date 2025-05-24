@@ -43,6 +43,7 @@ class SimpleYieldingEvaluator(Evaluator):
     def evaluate(self, code):
         # Compile the solve function
         namespace = {}
+        print(code)
         exec(code, namespace)
         if "solve" not in namespace:
             raise ValueError("The source code does not define a 'solve' function.")
