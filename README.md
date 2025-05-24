@@ -7,6 +7,11 @@
 
 **Data:** [CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench)
 
+# News
+
+- **[2025.5.24]** Check out [FrontierCO](https://arxiv.org/abs/2505.16952), a benchmark of real-world, challenging (and in some cases unsolved) combinatorial optimization problems. See for [Evaluation on FrontierCO](#evaluation-on-frontierco) section for code to evaluate agents on this benchmark.
+- **[2025.4.6]** Released CO-Bench.
+
 # Download Data
 Download the raw data from [https://huggingface.co/datasets/CO-Bench/CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench) to the local directory `data`
 ```python
@@ -118,6 +123,85 @@ print(code)
 
 *Docker environment for sandboxed agent execution and solution evaluation: coming soon.*
 
+# Evaluation on FrontierCO
+
+Download the raw data from [https://huggingface.co/datasets/CO-Bench/FrontierCO](https://huggingface.co/datasets/CO-Bench/FrontierCO) to the local directory `data`:
+```python
+from huggingface_hub import snapshot_download
+
+snapshot_download(
+    repo_id='CO-Bench/FrontierCO',
+    repo_type='dataset',
+    local_dir='data'
+)
+```
+
+Note: In FrontierCO, instead of returning a single solution, the solve function must yield increasingly better solutions over time. The solve template looks like this:
+
+```python
+def solve(**kwargs):
+    """
+    Solve a TSP instance.
+
+    Args:
+        - nodes (list): List of (x, y) coordinates representing cities in the TSP problem.
+                        Format: [(x1, y1), (x2, y2), ..., (xn, yn)]
+
+    Yields:
+        dict: Solution information with:
+            - 'tour' (list): List of node indices representing the solution path.
+                             Format: [0, 3, 1, ...] where numbers are indices into the nodes list.
+    """
+    # Your function must yield multiple solutions over time, not just return one.
+    # Use Python's yield keyword repeatedly to produce a stream of solutions.
+    # Each yielded solution should be better than the previous one.
+    # Evaluation is based on the last yielded solution before timeout.
+    while True:
+        yield {
+            'tour': [],
+        }
+```
+
+Compared with CO-Bench, we use new agent implementations in FrontierCO:
+
+```python
+from agents import YieldGreedyRefine, YieldFunSearch, YieldReEvo
+
+# And a new evaluator to fetch solutions yielded by the solver,
+# evaluating only the last solution before timeout:
+from evaluation import YieldingEvaluator, get_new_data
+
+# Load data
+data = get_new_data(task, src_dir='data', data_dir='data')
+
+# Define agent (example: YieldGreedyRefine)
+agent = YieldGreedyRefine(
+    problem_description=data.problem_description,
+    timeout=300,  # 300s timeout during solver development
+    model='openai/o3-mini',  # We use LiteLLM to call the API
+)
+
+# Load YieldingEvaluator
+# 300s timeout during solver development
+evaluator = YieldingEvaluator(data, timeout=300)
+
+# Run for 64 iterations
+for it in range(64):
+    code = agent.step()
+    if code is None:  # agent decides to terminate
+        break
+    feedback = evaluator.evaluate(code)  # Run evaluation
+    agent.feedback(feedback.dev_score, feedback.dev_feedback)  # Use dev set score as feedback
+
+# Get the final solution
+code = agent.finalize()
+
+# For final evaluation, run the solver for 1 hour
+final_evaluator = YieldingEvaluator(data, timeout=60 * 60)
+feedback = final_evaluator.evaluate(code)
+print(feedback.test_feedback)  # Test set score
+```
+
 # Agent Implementations
 
 Agents are implemented in the `agents` module. Currently supported agents include: `GreedyRefine`, `DirectAnswer`, `BestOfN`, `FunSearch` ([link](https://github.com/google-deepmind/funsearch)), `AIDE` ([link](https://github.com/WecoAI/aideml)), `ChainOfExperts` ([link](https://github.com/xzymustbexzy/Chain-of-Experts)), and `ReEvo` ([link](https://github.com/ai4co/reevo)). LLMs are supported via [liteLLM](https://github.com/BerriAI/litellm).
@@ -128,7 +212,6 @@ Each agent implements the following functions:
 - `finalize()`: Returns the final code.
 
 # Cite
-
 ```
 @article{Sun2025COBench,
   title={CO-Bench: Benchmarking Language Model Agents in Algorithm Search for Combinatorial Optimization},
@@ -137,5 +220,15 @@ Each agent implements the following functions:
   year={2025},
   volume={abs/2504.04310},
   url={https://arxiv.org/abs/2504.04310},
+}
+```
+
+```
+@article{Feng2025FrontierCO,
+  title={A Comprehensive Evaluation of Contemporary ML-Based Solvers for Combinatorial Optimization},
+  author={Shengyu Feng and Weiwei Sun and Shanda Li and Ameet Talwalkar and Yiming Yang},
+  journal={arXiv preprint arXiv:2505.16952},
+  year={2025},
+  url={https://arxiv.org/abs/2505.16952}
 }
 ```
