@@ -148,7 +148,7 @@ snapshot_download(
 )
 ```
 
-Note: In FrontierCO, instead of returning a single solution, the solve function must yield increasingly better solutions over time. The solve template looks like this:
+Note: In FrontierCO, instead of returning a single solution, the solve function must **yield increasingly better solutions** over time. The solve template looks like this:
 
 ```python
 def solve(**kwargs):
