@@ -1,0 +1,19 @@
+defaults:
+  - _self_
+  - problem: tsp_constructive
+  - llm_client: openai
+  - override hydra/output: local
+
+hydra:
+  job:
+    name: ${problem.problem_name}-${problem.problem_type}
+    chdir: True
+
+# The chosen algorithm
+algorithm: mcts_ahd
+
+# Main GA loop parameters
+max_fe: 1000 # maximum number of function evaluations
+pop_size: 10 # population size for GA
+init_pop_size: 4 # initial population size for GA
+timeout: 60 # timeout for evaluation of a single heuristic

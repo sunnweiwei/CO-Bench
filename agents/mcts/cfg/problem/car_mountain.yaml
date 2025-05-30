@@ -1,0 +1,6 @@
+problem_name: car_mountain
+problem_type: machine_learning
+obj_type: min
+problem_size: 100 # problem size for training
+func_name: choose_action
+description: This is the classic car_mountain task in RL. The goal of the car is to reach the flag position on the right mountaintop. Due to the limited power of the car, it cannot climb the mountain slope directly and must use momentum to achieve the goal. Implement a function that designing a novel strategy function that guide the car along an uneven road, moving step by step towards a target. At each step, a specific action will be chosen based on the car's current position and velocity, aiming to reach the destination in the minimum number of steps.

@@ -1,0 +1,6 @@
+problem_name: bo_caf
+problem_type: bo
+obj_type: min
+problem_size: 50 # problem size for training
+func_name: utility
+description: Given a black-box maximization optimization problem with unknown heterogenous cost of evaluation, suppose I have trained the surrogate and cost model based on the evaluated samples, you need to create a totally new utility (different from the utilities in the literature) that quantifies the benefit of the given unobserved test input and budget information in each iteration.
