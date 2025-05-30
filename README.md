@@ -32,7 +32,7 @@ snapshot_download(
 
 # Agent Implementations
 
-Agents are implemented in the `agents` module. Currently supported agents include: `GreedyRefine`, `DirectAnswer`, `BestOfN`, `FunSearch` ([link](https://github.com/google-deepmind/funsearch)), `AIDE` ([link](https://github.com/WecoAI/aideml)), `ChainOfExperts` ([link](https://github.com/xzymustbexzy/Chain-of-Experts)), `ReEvo` ([link](https://github.com/ai4co/reevo)), EoH ([link](https://github.com/FeiLiu36/EoH)), MCTS-AHD ([link](https://github.com/zz1358m/MCTS-AHD-master)). 
+Agents are implemented in the `agents` module. Currently supported agents include: `GreedyRefine`, `DirectAnswer`, `BestOfN`, `FunSearch` ([link](https://github.com/google-deepmind/funsearch)), `AIDE` ([link](https://github.com/WecoAI/aideml)), `ChainOfExperts` ([link](https://github.com/xzymustbexzy/Chain-of-Experts)), `ReEvo` ([link](https://github.com/ai4co/reevo)), `EoH` ([link](https://github.com/FeiLiu36/EoH)), `MCTS-AHD` ([link](https://github.com/zz1358m/MCTS-AHD-master)). 
 LLMs are supported via [liteLLM](https://github.com/BerriAI/litellm).
 
 Each agent implements the following functions:
