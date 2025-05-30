@@ -8,3 +8,6 @@ from agents.bestofn import BestOfN
 from agents.new_greedy_refine import YieldGreedyRefine
 from agents.new_funsearch import YieldFunSearch
 from agents.new_reevo import YieldReEvo
+
+from agents.eoh_agent import EoHAgent
+from agents.mcts_agent import MctsAhd
