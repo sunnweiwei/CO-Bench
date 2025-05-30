@@ -14,6 +14,12 @@
 
 # Download Data
 Download the raw data from [https://huggingface.co/datasets/CO-Bench/CO-Bench](https://huggingface.co/datasets/CO-Bench/CO-Bench) to the local directory `data`
+
+```
+huggingface-cli download CO-Bench/CO-Bench --repo-type dataset --local-dir data
+```
+or
+
 ```python
 from huggingface_hub import snapshot_download
 
@@ -126,6 +132,12 @@ print(code)
 # Evaluation on FrontierCO
 
 Download the raw data from [https://huggingface.co/datasets/CO-Bench/FrontierCO](https://huggingface.co/datasets/CO-Bench/FrontierCO) to the local directory `data`:
+
+```
+huggingface-cli download CO-Bench/FrontierCO --repo-type dataset --local-dir data
+```
+or
+
 ```python
 from huggingface_hub import snapshot_download
 
