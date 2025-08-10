@@ -594,7 +594,7 @@ Write constructive hints for designing better solutions, based on prior reflecti
             # Get reflections
             reflections = []
             for message in reflection_messages:
-                reflections.append(self.call_llm(message, model='gpt-4o-mini'))
+                reflections.append(self.call_llm(message, model='gpt-4o-mini')[0])
 
             # Save short-term reflections for analysis
             for i, reflection in enumerate(reflections):
