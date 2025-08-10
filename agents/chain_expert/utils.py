@@ -2,8 +2,6 @@ import re
 import json
 import os
 import openai
-from run import call_llm as original_call_llm
-
 
 
 def call_llm(model_name, prompt, temperature=None, max_tokens=None) -> str:
