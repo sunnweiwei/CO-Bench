@@ -17,7 +17,7 @@ def call_llm(messages, model='openai/gpt-4o', reasoning_effort=None, n=None):
     from litellm import completion
     litellm.drop_params = True
     response = completion(model=model, messages=messages, reasoning_effort=reasoning_effort, n=n)
-    if n == 1:
+    if n == 1 or n is None:
         return response.choices[0].message.content
     else:
         return [choice.message.content for choice in response.choices]
@@ -594,12 +594,12 @@ Write constructive hints for designing better solutions, based on prior reflecti
             # Get reflections
             reflections = []
             for message in reflection_messages:
-                reflections.append(self.call_llm(message, model='gpt-4o-mini')[0])
+                reflections.append(self.call_llm(message, model='gpt-4o-mini'))
 
             # Save short-term reflections for analysis
-            for i, reflection in enumerate(reflections):
-                with open(f"{self.workspace}/short_term_reflection_iter_{self.iteration}_{i}.txt", 'w') as f:
-                    f.write(reflection)
+            # for i, reflection in enumerate(reflections):
+            #     with open(f"{self.workspace}/short_term_reflection_iter_{self.iteration}_{i}.txt", 'w') as f:
+            #         f.write(reflection)
 
             # Update long-term reflection
             self._long_term_reflection(reflections)
