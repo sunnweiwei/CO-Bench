@@ -114,7 +114,23 @@ def get_new_data(task, src_dir='data', data_dir='data', filter_key=None):
     try:
         get_dev, = import_func(f"{src_dir}/{task}/config.py", 'get_dev')
     except AttributeError:
-        get_dev = lambda: None
+        task_root = Path(f"{data_dir}/{task}")
+        valid_dir = task_root / "valid_instances"
+        easy_dir = task_root / "easy_test_instances"
+        hard_dir = task_root / "hard_test_instances"
+        if valid_dir.is_dir() and easy_dir.is_dir() and hard_dir.is_dir():
+            valid_paths = [
+                str(p.relative_to(task_root))
+                for p in valid_dir.rglob("*")
+                if p.is_file()
+                and p.name != "__pycache__"
+                and not p.name.endswith(".py")
+                and not any(part.endswith(("_sol", "_par")) for part in p.parts)
+            ]
+            _dev_map = {path: list(range(100_000)) for path in valid_paths}
+            get_dev = lambda: _dev_map
+        else:
+            get_dev = lambda: None
     problem_description = f"{problem}\n\n# Implement in Solve Function\n\n{solve_template}"
 
     return Data(
